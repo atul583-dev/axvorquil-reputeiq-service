@@ -1,0 +1,32 @@
+server:
+  port: 8092
+
+spring:
+  application:
+    name: axvorquil-reputeiq-service
+  data:
+    mongodb:
+      uri: mongodb+srv://atul583b:This583Works@cluster0.elwy7.mongodb.net/axvorquil_reputeiq?appName=Cluster0
+      auto-index-creation: true
+
+azure-openai:
+  endpoint: "${AZURE_OPENAI_ENDPOINT:https://atul5-mn0lkvdr-eastus2.cognitiveservices.azure.com/}"
+  api-key: "${AZURE_OPENAI_API_KEY:}"
+  deployment: "${AZURE_OPENAI_DEPLOYMENT:gpt-5.4-mini}"
+  api-version: "${AZURE_OPENAI_API_VERSION:2025-04-01-preview}"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+  health:
+    mongo:
+      enabled: false
+
+logging:
+  level:
+    com.axvorquil.reputeiq: DEBUG
