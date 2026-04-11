@@ -6,6 +6,8 @@ import com.axvorquil.reputeiq.repository.EndorsementRepository;
 import com.axvorquil.reputeiq.repository.ReputeProfileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -22,6 +24,7 @@ public class ProfileService {
     private final AchievementRepository achRepo;
     private final EndorsementRepository endorsRepo;
 
+    @Cacheable(value = "profiles", key = "#tenantId + ':' + #userId")
     public ReputeProfile getOrCreateProfile(String tenantId, String userId) {
         return profileRepo.findByTenantIdAndUserId(tenantId, userId)
                 .orElseGet(() -> {
@@ -38,11 +41,13 @@ public class ProfileService {
                 });
     }
 
+    @Cacheable(value = "profiles", key = "#tenantId + ':' + #userId")
     public ReputeProfile getProfile(String tenantId, String userId) {
         return profileRepo.findByTenantIdAndUserId(tenantId, userId)
                 .orElseThrow(() -> new RuntimeException("Profile not found for user: " + userId));
     }
 
+    @CacheEvict(value = "profiles", key = "#tenantId + ':' + #userId")
     public ReputeProfile updateProfile(String tenantId, String userId, Map<String, Object> data) {
         ReputeProfile profile = getProfile(tenantId, userId);
         if (data.containsKey("headline")) profile.setHeadline((String) data.get("headline"));
@@ -58,6 +63,7 @@ public class ProfileService {
                 .filter(p -> "PUBLIC".equals(p.getProfileVisibility()));
     }
 
+    @CacheEvict(value = {"profiles", "score"}, key = "#tenantId + ':' + #userId")
     public ReputeProfile computeScore(String tenantId, String userId) {
         ReputeProfile profile = getProfile(tenantId, userId);
 

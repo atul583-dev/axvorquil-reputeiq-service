@@ -6,6 +6,8 @@ import com.axvorquil.reputeiq.repository.AchievementRepository;
 import com.axvorquil.reputeiq.repository.ReputeProfileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,10 +23,12 @@ public class AchievementService {
     private final AiService aiService;
     private final ProfileService profileService;
 
+    @Cacheable(value = "achievements", key = "#profileId")
     public List<Achievement> list(String profileId) {
         return repo.findByProfileIdOrderByCreatedAtDesc(profileId);
     }
 
+    @CacheEvict(value = "achievements", key = "#profileId")
     public Achievement create(String tenantId, String profileId, Map<String, Object> body) {
         String rawInput = (String) body.getOrDefault("rawInput", "");
         String category = (String) body.getOrDefault("category", "CAREER");
