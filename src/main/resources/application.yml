@@ -1,5 +1,5 @@
 server:
-  port: 8092
+  port: ${PORT:8092}
 
   compression:
     enabled: true
